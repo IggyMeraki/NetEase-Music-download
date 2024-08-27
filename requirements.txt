@@ -1,0 +1,6 @@
+gradio==3.16.1
+requests==2.31.0
+cryptography==40.0.2
+selenium==4.20.0
+webdriver-manager==4.8.4
+loguru==0.7.0
