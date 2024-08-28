@@ -32,6 +32,8 @@ class CookieManager:
         self.driver.get(login_url)
         self.driver.maximize_window()
         time.sleep(1)
+        self.driver.refresh()
+        time.sleep(1)
         while True:
             try:
                 self.driver.find_element(By.CLASS_NAME, "link.s-fc3").click()

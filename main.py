@@ -319,4 +319,4 @@ if __name__ == "__main__":
 
         submit_btn.click(main, inputs=[url_input, vip_status_dropdown, quality_dropdown], outputs=[download, output_text])
 
-    interface.launch()
+    interface.launch(inbrowser=True)
