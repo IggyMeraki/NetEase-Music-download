@@ -208,18 +208,23 @@ def test():
         print(data["size"])
         return False
 
+global cookie_flag
+cookie_flag = False
 
 def main(url, vip, level):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cookie_file = os.path.join(script_dir, 'cookie.txt')
-    os.mkdir(cookie_file) if not os.path.exists(cookie_file) else None
+    with open(cookie_file, 'a'):
+        pass
     cm = CookieManager(file_path=cookie_file)
-    if vip == "VIP" or vip == "SVIP":
-        if test():
-            print("cookie有效")
-        else:
+    if vip in ["VIP", "SVIP"] and not cookie_flag:
+        if not test():
             print("cookie无效，请重新登录")
             cm.login_and_save_cookies()
+        else:
+            print("cookie有效")
+            cookie_flag = True
+
     
     # 获取文件名和数据
     download_link, data = process_song_v1(url, level)

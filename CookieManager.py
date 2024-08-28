@@ -5,7 +5,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.service import Service as EdgeService
-from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
@@ -64,6 +63,8 @@ if __name__ == '__main__':
     import os
     dir_path = os.path.dirname(os.path.realpath(__file__))
     file_path = os.path.join(dir_path, "cookie.txt")
+    with open(file_path, 'a'):
+        pass
     cm = CookieManager(file_path=file_path)
     cm.login_and_save_cookies()
     print(cm.cookies)
