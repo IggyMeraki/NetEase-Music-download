@@ -212,6 +212,7 @@ global cookie_flag
 cookie_flag = False
 
 def main(url, vip, level):
+    global cookie_flag
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cookie_file = os.path.join(script_dir, 'cookie.txt')
     with open(cookie_file, 'a'):
