@@ -6,12 +6,12 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/IggyMeraki/NetEase-Music-download)
 
 
-这是一个基于[Gradio](https://gradio.app/)的网易云音乐无损解析GUI界面，可以快速下载网易云音乐的无损音乐文件，并生成歌词文件。
+这是一个基于[Gradio](https://gradio.app/)的网易云音乐无损解析GUI界面，可以快速下载网易云音乐的无损音乐文件，并生成LRC歌词文件。
 
 ## 功能
 
 - 无损音乐下载
-- 歌词文件生成
+- LRC歌词生成
 - 音质等级选择
 - 封面图片解析
 
