@@ -9,6 +9,7 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from CookieManager import CookieManager
 from urllib.parse import urlparse
+import shutil
 
 def HexDigest(data):
     return "".join([hex(d)[2:].zfill(2) for d in data])
@@ -177,14 +178,21 @@ def process_song_v1(url, level):
                 song_arname = ', '.join(artist_names)
             response = requests.get(song_url, stream=True)
             if response.status_code == 200:
-                file_name = song_name + get_file_extension(song_url)
-                download_link = f'<a href="{song_url}" download="{file_name}">Click here to download {file_name}</a>'
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                save_dir = os.path.join(script_dir, '__pycache__')
+                if not os.path.exists(save_dir):
+                    os.makedirs(save_dir)
+                file_name = song_name + song_arname +get_file_extension(song_url)
+                file_path = os.path.join(save_dir, file_name)
+                with open(file_path, 'wb') as f:
+                    f.write(response.content)
+                # download_link = f'<a href="{song_url}" download="{file_name}">Click here to download {file_name}</a>'
             else:
                 return "下载失败！", None
     else:
         return "信息获取不完整！", None
 
-    return song_url,{
+    return file_path,{
             "status": 200,
             "name": song_name,
             "pic": song_picUrl,
@@ -207,6 +215,98 @@ def test():
     else:
         print(data["size"])
         return False
+
+import re
+
+def lyrics_to_srt(lyrics):
+    lines = lyrics.strip().split('\n')
+    srt_lines = []
+    subtitle_number = 1
+    
+    for i in range(len(lines) - 1):
+        current_line = lines[i]
+        next_line = lines[i + 1]
+        
+        # Extract the time and text using regex
+        match_current = re.match(r'\[(\d{2}):(\d{2}).(\d{2})\] (.+)', current_line)
+        match_next = re.match(r'\[(\d{2}):(\d{2}).(\d{2})\] (.+)', next_line)
+        
+        if match_current and match_next:
+            minutes_current, seconds_current, milliseconds_current, text_current = match_current.groups()
+            minutes_next, seconds_next, milliseconds_next, _ = match_next.groups()
+            
+            start_time = f"{minutes_current}:{seconds_current},{milliseconds_current}0"
+            end_time = f"{minutes_next}:{seconds_next},{milliseconds_next}0"
+            
+            # Add subtitle to SRT list
+            srt_lines.append(f"{subtitle_number}")
+            srt_lines.append(f"{start_time} --> {end_time}")
+            srt_lines.append(text_current)
+            srt_lines.append("")  # Empty line for SRT separation
+            
+            subtitle_number += 1
+    
+    # Handle the last line
+    last_line = lines[-1]
+    match_last = re.match(r'\[(\d{2}):(\d{2}).(\d{2})\] (.+)', last_line)
+    
+    if match_last:
+        minutes_last, seconds_last, milliseconds_last, text_last = match_last.groups()
+        start_time_last = f"{minutes_last}:{seconds_last},{milliseconds_last}0"
+        
+        # Assume the last subtitle lasts 3 seconds for example purposes
+        end_time_last = f"{minutes_last}:{int(seconds_last)+3},{milliseconds_last}0"
+        
+        srt_lines.append(f"{subtitle_number}")
+        srt_lines.append(f"{start_time_last} --> {end_time_last}")
+        srt_lines.append(text_last)
+    
+    return "\n".join(srt_lines)
+
+def lyrics_to_lrc(lyrics):
+    lines = lyrics.strip().split("\n")
+    lrc_lines = []
+
+    for line in lines:
+        if line.strip():
+            lrc_lines.append(line)
+
+    return "\n".join(lrc_lines)
+
+def generate_files(data):
+    if data.get('lyric'):
+        lyrics = data['lyric']
+    else:
+        return None, None
+    srt_content = lyrics_to_srt(lyrics)
+    lrc_content = lyrics_to_lrc(lyrics)
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    save_dir = os.path.join(script_dir, '__pycache__')
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    srt_path = os.path.join(script_dir, '__pycache__', f'{data["name"]}.srt')
+    lrc_path = os.path.join(script_dir, '__pycache__',f'{data["name"]}.lrc')
+
+    with open(srt_path, "w", encoding="utf-8") as f:
+        f.write(srt_content)
+
+    with open(lrc_path, "w", encoding="utf-8") as f:
+        f.write(lrc_content)
+
+    return srt_path, lrc_path
+
+def delete_cache():
+    folder_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '__pycache__')
+    try:
+        # 确保路径存在并且是一个文件夹
+        if os.path.exists(folder_path) and os.path.isdir(folder_path):
+            shutil.rmtree(folder_path)
+            return f"Successfully deleted the folder: {folder_path}"
+        else:
+            return f"Folder does not exist: {folder_path}"
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
 global cookie_flag
 cookie_flag = False
@@ -244,14 +344,14 @@ def main(url, vip, level):
         if data['pic']:
             display_text += f"🖼 专辑封面: ![album cover]({data['pic']})\n"
         
-        # 显示歌词信息
+        # 处理歌词信息
         if data.get('lyric'):
-            display_text += f"\n🎶 歌词:\n{data['lyric']}\n"
+            # display_text += f"\n🎶 歌词:\n{data['lyric']}\n"
+            srt_path, lrc_path = generate_files(data)
 
-        return download_link, display_text
+        return download_link, lrc_path,display_text
     else:
         return None, "无法获取歌曲信息，请检查URL或音质设置。"
-
 
 
 
@@ -297,7 +397,6 @@ if __name__ == "__main__":
     with gr.Blocks(head=short_js, css=custom_css) as interface:
 
         gr.Markdown(header)
-
         with gr.Row():
             url_input = gr.Textbox(label="URL", placeholder="请输入歌曲URL,如https://music.163.com/#/song?id=1306371615")
             vip_status_dropdown = gr.Dropdown(
@@ -315,8 +414,12 @@ if __name__ == "__main__":
         
         submit_btn = gr.Button("提交")
         download = gr.File(label="下载音乐")
+        # srt_download = gr.File(label="下载歌词(SRT)")
+        lrc_download = gr.File(label="下载歌词(LRC)")
         output_text = gr.Textbox(label="歌曲信息")
+        delete_button = gr.Button("清除缓存")
+        delete_button.click(delete_cache)
 
-        submit_btn.click(main, inputs=[url_input, vip_status_dropdown, quality_dropdown], outputs=[download, output_text])
+        submit_btn.click(main, inputs=[url_input, vip_status_dropdown, quality_dropdown], outputs=[download, lrc_download, output_text])
 
     interface.launch(inbrowser=True)
