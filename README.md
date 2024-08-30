@@ -5,17 +5,31 @@
 ![GitHub issues](https://img.shields.io/github/issues/IggyMeraki/NetEase-Music-download)
 ![GitHub Repo stars](https://img.shields.io/github/stars/IggyMeraki/NetEase-Music-download)
 
-先安装 文件所需要的依赖模块 
+
+这是一个基于[Gradio](https://gradio.app/)的网易云音乐无损解析GUI界面，可以快速下载网易云音乐的无损音乐文件，并生成歌词文件。
+
+## 功能
+
+- 无损音乐下载
+- 歌词文件生成
+- 音质等级选择
+- 封面图片解析
+
+
+## 运行环境
+
+- Python 3.7+
+- Gradio 2.0.0+
+
+## 运行方法
+
+```
+git clone https://github.com/IggyMeraki/Netease_url_gui.git
+cd Netease_url_gui
 pip install -r requirements.txt
-再运行main.py文件即可
-
-## 环境要求
-Python >= 3
-
-## 使用说明书
-
-- 运行main.py或release中的exe文件，会自动启动网页
-
+python main.py
+```
+或下载[release](https://github.com/IggyMeraki/NetEase-Music-download/releases)中的exe文件运行
 
 ## 音质说明
 
@@ -23,7 +37,6 @@ Python >= 3
 - 在cookie失效或没有cookie的时候会触发登录页面，在弹出的网页中登录即可。
 - 音质越高所需要的时间更长，请耐心等待
 
-## 注意事项
 # 感谢
 
 [Suxiaoqinx](https://github.com/Suxiaoqinx)
