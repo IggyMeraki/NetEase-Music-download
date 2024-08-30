@@ -10,6 +10,8 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from CookieManager import CookieManager
 from urllib.parse import urlparse
 import shutil
+from pathlib import Path
+
 
 def HexDigest(data):
     return "".join([hex(d)[2:].zfill(2) for d in data])
@@ -372,9 +374,15 @@ def on_vip_status_change(vip_status):
     # 返回更新后的选项以及第一个选项作为默认值
     return gr.update(choices=new_options, value=new_options[0] if new_options else None)
 
+def delete_directory(req: gr.Request):
+    if not req.username:
+        return
+    current_dir = Path(__file__).parent
+    user_dir: Path = current_dir / req.username
+    shutil.rmtree(str(user_dir))
 
 header = """
-# 网易云音乐无损解析GUI界面🌈
+# 网易云音乐无损解析GUI界面🌈🎵
 
 ⚠️此项目完全开源免费 （[项目地址](https://github.com/IggyMeraki/Netease_url_gui)），切勿进行盈利，所造成的后果与本人无关。
 """
@@ -394,7 +402,7 @@ custom_css = """
 
 # Gradio界面设计
 if __name__ == "__main__":
-    with gr.Blocks(head=short_js, css=custom_css) as interface:
+    with gr.Blocks(head=short_js, css=custom_css,delete_cache=(86400,86400)) as interface:
 
         gr.Markdown(header)
         with gr.Row():
@@ -421,5 +429,7 @@ if __name__ == "__main__":
         delete_button.click(delete_cache,outputs=[output_text])
 
         submit_btn.click(main, inputs=[url_input, vip_status_dropdown, quality_dropdown], outputs=[download, lrc_download, output_text])
+
+        # interface.unload(delete_directory)
 
     interface.launch(inbrowser=True)
