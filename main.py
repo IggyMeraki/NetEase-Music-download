@@ -418,7 +418,7 @@ if __name__ == "__main__":
         lrc_download = gr.File(label="下载歌词(LRC)")
         output_text = gr.Textbox(label="歌曲信息")
         delete_button = gr.Button("清除缓存")
-        delete_button.click(delete_cache)
+        delete_button.click(delete_cache,outputs=[output_text])
 
         submit_btn.click(main, inputs=[url_input, vip_status_dropdown, quality_dropdown], outputs=[download, lrc_download, output_text])
 
