@@ -24,8 +24,8 @@
 ## 运行方法
 
 ```
-git clone https://github.com/IggyMeraki/Netease_url_gui.git
-cd Netease_url_gui
+git clone https://github.com/IggyMeraki/NetEase-Music-download.git
+cd NetEase-Music-download
 pip install -r requirements.txt
 python main.py
 ```
